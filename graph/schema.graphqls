@@ -1,0 +1,42 @@
+# in the schema we will be doing Query and Mutations
+schema { 
+  query: Query
+  mutation: Mutation
+}
+
+# These are the two queries we will be doing
+type Query {
+  search(input: [SearchInput]): [SearchResult]
+}
+
+# This is a mutation we will be doing
+type Mutation {
+    # Delete search query for the current user.
+    deleteSearch(resource: String): String
+    # Save a search query for the current user.
+    saveSearch(resource: String): String
+}
+
+input SearchFilter {
+    property: String!
+    values: [String]
+  }
+input SearchInput {
+    keywords: [String]
+    filters: [SearchFilter]
+    # Max number of results. Default limit: 10,000. For unlimited results use -1.
+    limit: Int
+    # Filter relationships to the specified kinds.
+    # If empty, all relationships will be included. This filter is used with the 'related' field on SearchResult.
+    relatedKinds: [String]
+  }
+type SearchResult {
+    count: Int
+    items: String
+    related: [SearchRelatedResult]
+  }
+type SearchRelatedResult {
+    kind: String!
+    count: Int
+    items: String
+  }
