@@ -30,13 +30,21 @@ input SearchInput {
     # If empty, all relationships will be included. This filter is used with the 'related' field on SearchResult.
     relatedKinds: [String]
   }
+
+type Item{
+  key: String
+  value: Map
+}
 type SearchResult {
     count: Int
-    items: String
+    items: [Item]
     related: [SearchRelatedResult]
   }
+
 type SearchRelatedResult {
     kind: String!
     count: Int
-    items: String
+    items: [Item]
   }
+
+scalar Map

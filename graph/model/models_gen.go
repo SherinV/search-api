@@ -2,6 +2,11 @@
 
 package model
 
+type Item struct {
+	Key   *string                `json:"key"`
+	Value map[string]interface{} `json:"value"`
+}
+
 type SearchFilter struct {
 	Property string    `json:"property"`
 	Values   []*string `json:"values"`
@@ -17,11 +22,11 @@ type SearchInput struct {
 type SearchRelatedResult struct {
 	Kind  string  `json:"kind"`
 	Count *int    `json:"count"`
-	Items *string `json:"items"`
+	Items []*Item `json:"items"`
 }
 
 type SearchResult struct {
 	Count   *int                   `json:"count"`
-	Items   *string                `json:"items"`
+	Items   []*Item                `json:"items"`
 	Related []*SearchRelatedResult `json:"related"`
 }
