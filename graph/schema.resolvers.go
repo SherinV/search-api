@@ -20,9 +20,16 @@ func (r *mutationResolver) SaveSearch(ctx context.Context, resource *string) (*s
 }
 
 func (r *queryResolver) Search(ctx context.Context, input []*model.SearchInput) ([]*model.SearchResult, error) {
-	// items := make([]string, 2)
-	// items = append(items, "search-ui")
-	// items = append(items, "search-api")
+	items := make([]map[string]interface{}, 2)
+	val1 := make(map[string]interface{})
+	val1["name"] = "search-ui"
+	val1["label"] = [2]string{"app=search", "component:search-ui"}
+	val2 := make(map[string]interface{})
+	val2["name"] = "search-api"
+	val2["label"] = [2]string{"app=search", "component:search-api"}
+
+	items = append(items, val1)
+	items = append(items, val2)
 
 	srchrelatedresult := make([]*model.SearchRelatedResult, 2)
 	count := 2
@@ -31,6 +38,7 @@ func (r *queryResolver) Search(ctx context.Context, input []*model.SearchInput) 
 
 	srchresult1 := model.SearchResult{
 		Count:   &count,
+		Items:   items,
 		Related: srchrelatedresult,
 	}
 	srchResult := make([]*model.SearchResult, 1)

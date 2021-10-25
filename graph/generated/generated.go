@@ -42,11 +42,6 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	Item struct {
-		Key   func(childComplexity int) int
-		Value func(childComplexity int) int
-	}
-
 	Mutation struct {
 		DeleteSearch func(childComplexity int, resource *string) int
 		SaveSearch   func(childComplexity int, resource *string) int
@@ -91,20 +86,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
-
-	case "Item.key":
-		if e.complexity.Item.Key == nil {
-			break
-		}
-
-		return e.complexity.Item.Key(childComplexity), true
-
-	case "Item.value":
-		if e.complexity.Item.Value == nil {
-			break
-		}
-
-		return e.complexity.Item.Value(childComplexity), true
 
 	case "Mutation.deleteSearch":
 		if e.complexity.Mutation.DeleteSearch == nil {
@@ -281,20 +262,17 @@ input SearchInput {
     relatedKinds: [String]
   }
 
-type Item{
-  key: String
-  value: Map
-}
+
 type SearchResult {
     count: Int
-    items: [Item]
+    items: [Map]
     related: [SearchRelatedResult]
   }
 
 type SearchRelatedResult {
     kind: String!
     count: Int
-    items: [Item]
+    items: [Map]
   }
 
 scalar Map`, BuiltIn: false},
@@ -402,70 +380,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _Item_key(ctx context.Context, field graphql.CollectedField, obj *model.Item) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Item",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Key, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Item_value(ctx context.Context, field graphql.CollectedField, obj *model.Item) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Item",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Value, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(map[string]interface{})
-	fc.Result = res
-	return ec.marshalOMap2map(ctx, field.Selections, res)
-}
 
 func (ec *executionContext) _Mutation_deleteSearch(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
@@ -749,9 +663,9 @@ func (ec *executionContext) _SearchRelatedResult_items(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Item)
+	res := resTmp.([]map[string]interface{})
 	fc.Result = res
-	return ec.marshalOItem2ᚕᚖgithubᚗcomᚋSherinVᚋsearchᚑapiᚋgraphᚋmodelᚐItem(ctx, field.Selections, res)
+	return ec.marshalOMap2ᚕmap(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SearchResult_count(ctx context.Context, field graphql.CollectedField, obj *model.SearchResult) (ret graphql.Marshaler) {
@@ -813,9 +727,9 @@ func (ec *executionContext) _SearchResult_items(ctx context.Context, field graph
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Item)
+	res := resTmp.([]map[string]interface{})
 	fc.Result = res
-	return ec.marshalOItem2ᚕᚖgithubᚗcomᚋSherinVᚋsearchᚑapiᚋgraphᚋmodelᚐItem(ctx, field.Selections, res)
+	return ec.marshalOMap2ᚕmap(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SearchResult_related(ctx context.Context, field graphql.CollectedField, obj *model.SearchResult) (ret graphql.Marshaler) {
@@ -2058,32 +1972,6 @@ func (ec *executionContext) unmarshalInputSearchInput(ctx context.Context, obj i
 
 // region    **************************** object.gotpl ****************************
 
-var itemImplementors = []string{"Item"}
-
-func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj *model.Item) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, itemImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Item")
-		case "key":
-			out.Values[i] = ec._Item_key(ctx, field, obj)
-		case "value":
-			out.Values[i] = ec._Item_value(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2790,54 +2678,6 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return graphql.MarshalInt(*v)
 }
 
-func (ec *executionContext) marshalOItem2ᚕᚖgithubᚗcomᚋSherinVᚋsearchᚑapiᚋgraphᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v []*model.Item) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋSherinVᚋsearchᚑapiᚋgraphᚋmodelᚐItem(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
-func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋSherinVᚋsearchᚑapiᚋgraphᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v *model.Item) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Item(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalOMap2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -2851,6 +2691,42 @@ func (ec *executionContext) marshalOMap2map(ctx context.Context, sel ast.Selecti
 		return graphql.Null
 	}
 	return graphql.MarshalMap(v)
+}
+
+func (ec *executionContext) unmarshalOMap2ᚕmap(ctx context.Context, v interface{}) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]map[string]interface{}, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOMap2map(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOMap2ᚕmap(ctx context.Context, sel ast.SelectionSet, v []map[string]interface{}) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalOMap2map(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOSearchFilter2ᚕᚖgithubᚗcomᚋSherinVᚋsearchᚑapiᚋgraphᚋmodelᚐSearchFilter(ctx context.Context, v interface{}) ([]*model.SearchFilter, error) {

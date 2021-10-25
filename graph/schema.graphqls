@@ -31,20 +31,17 @@ input SearchInput {
     relatedKinds: [String]
   }
 
-type Item{
-  key: String
-  value: Map
-}
+
 type SearchResult {
     count: Int
-    items: [Item]
+    items: [Map]
     related: [SearchRelatedResult]
   }
 
 type SearchRelatedResult {
     kind: String!
     count: Int
-    items: [Item]
+    items: [Map]
   }
 
 scalar Map
