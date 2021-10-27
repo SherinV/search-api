@@ -24,18 +24,41 @@ func (r *queryResolver) Search(ctx context.Context, input []*model.SearchInput) 
 	items := make([]map[string]interface{}, 2)
 	val1 := make(map[string]interface{})
 	val1["name"] = "search-ui"
+	val1["namespace"] = "test"
 	val1["label"] = "app=search; component:search-ui"
+	val1["_uid"] = "uid_pod1"
+	val1["cluster"] = "local-cluster"
+	val1["kind"] = "pod"
+	val1["status"] = "Running"
+	val1["restarts"] = "0"
+	val1["hostIP"] = "10.0.143.101"
+	val1["podIP"] = "10.128.0.201"
+	val1["created"] = "2021-10-27T04:55:34Z"
+
 	val2 := make(map[string]interface{})
 	val2["name"] = "search-api"
 	val2["label"] = "app=search; component:search-api"
+	val2["_uid"] = "uid_pod2"
+	val2["namespace"] = "test"
+	val2["cluster"] = "local-cluster"
+	val2["kind"] = "pod"
+	val2["status"] = "ContainerCreating"
+	val2["restarts"] = "1"
+	val2["hostIP"] = "10.0.143.102"
+	val2["podIP"] = "10.128.0.202"
+	val2["created"] = "2021-10-26T04:55:34Z"
 
 	items[0] = val1
 	items[1] = val2
 
 	srchrelatedresult := make([]*model.SearchRelatedResult, 0)
 	count := 2
-	srchrelatedresult1 := model.SearchRelatedResult{Kind: "Pod", Count: &count}
+	clustercount := 1
+
+	srchrelatedresult1 := model.SearchRelatedResult{Kind: "Node", Count: &count}
+	srchrelatedresult2 := model.SearchRelatedResult{Kind: "Cluster", Count: &clustercount}
 	srchrelatedresult = append(srchrelatedresult, &srchrelatedresult1)
+	srchrelatedresult = append(srchrelatedresult, &srchrelatedresult2)
 
 	srchresult1 := model.SearchResult{
 		Count:   &count,
