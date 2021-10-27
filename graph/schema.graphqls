@@ -7,6 +7,11 @@ schema {
 # These are the two queries we will be doing
 type Query {
   search(input: [SearchInput]): [SearchResult]
+  messages : [Message]
+  searchSchema: Map
+  savedSearches: [userSearch]
+  searchComplete(property: String!, query: SearchInput, limit: Int): [String]
+
 }
 
 # This is a mutation we will be doing
@@ -43,5 +48,22 @@ type SearchRelatedResult {
     count: Int
     items: [Map]
   }
+
+
+type userSearch {
+  id: String
+  name: String
+  description: String
+  searchText: String
+}
+
+type Message {
+    # Unique identifier for each message.
+    id: String!
+    # Describes the type of message. Expected values are: information, warning, error.
+    kind: String
+    # Message text.
+    description: String
+}
 
 scalar Map

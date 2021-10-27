@@ -40,11 +40,11 @@ func main() {
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv.Handler)
 
-	log.Printf("connect to http://localhost:%d/ for GraphQL playground", port)
+	log.Printf("connect to https://localhost:%d%s/graphql for GraphQL playground", port, config.Cfg.ContextPath)
 	// log.Fatal(http.ListenAndServe(":"+port, nil))
 	// log.Fatal(http.ListenAndServeTLS(":" + string(port)))
 
 	log.Printf(`Search API is now running on https://localhost:%d%s/graphql`, port, config.Cfg.ContextPath)
-	log.Fatal(http.ListenAndServeTLS(":"+fmt.Sprint(port), "./sslcert/searchapi.crt", "./sslcert/searchapi.key",
-		nil))
+	log.Fatal(http.ListenAndServeTLS(":"+fmt.Sprint(port), "/opt/app-root/search-api/sslcert/searchapi.crt", "/opt/app-root/search-api/sslcert/searchapi.key",
+		srv.Handler))
 }
