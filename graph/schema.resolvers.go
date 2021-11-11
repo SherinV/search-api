@@ -6,6 +6,10 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
+
+	klog "k8s.io/klog/v2"
 
 	"github.com/SherinV/search-api/graph/generated"
 	"github.com/SherinV/search-api/graph/model"
@@ -18,9 +22,73 @@ func (r *mutationResolver) DeleteSearch(ctx context.Context, resource *string) (
 func (r *mutationResolver) SaveSearch(ctx context.Context, resource *string) (*string, error) {
 	panic(fmt.Errorf("not implemented"))
 }
+func (r *queryResolver) QueryBuilder(ctx context.Context, property string, input []*model.SearchInput, limit *int) string {
+	var selectClause, whereClause, limitClause, limitStr, query string
+	if property != "" {
+		klog.Infof("property: %s and limit:%d", property, limit)
+		// fmt.Sprintf(%d, ) Printf()
+		selectClause = "SELECT DISTINCT " + property + " FROM search.resources "
+		limitStr = strconv.Itoa(*limit)
+
+		if limitStr != "0" && limitStr != "" {
+			limitClause = " LIMIT " + limitStr
+		}
+		query = selectClause + limitClause
+		klog.Info("SearchComplete Query: ", query)
+		return query
+	}
+	if len(input) > 0 {
+		selectClause = "SELECT count(*) FROM search.resources "
+		limitClause = " LIMIT "
+
+		for _, in := range input {
+			whereClause = " WHERE "
+
+			for i, filter := range in.Filters {
+				klog.Infof("Filters%d: %+v", i, *filter)
+				whereClause = whereClause + "data->> '" + filter.Property + "'"
+				var values string
+				for _, val := range filter.Values {
+					klog.Infof("Filter value: %s", *val)
+					values = values + "'" + *val + "', "
+					//TODO: Change logic if array of values
+
+				}
+				whereClause = whereClause + " IN (" + strings.TrimRight(values, ", ") + ")" + " AND "
+
+			}
+			limitStr = strconv.Itoa(*in.Limit)
+			if limitStr != "" {
+				limitClause = " LIMIT " + limitStr
+			}
+			query = selectClause + strings.TrimRight(whereClause, " AND ") + limitClause
+			klog.Info("Query: ", query)
+		}
+	}
+
+	return query
+}
 
 func (r *queryResolver) Search(ctx context.Context, input []*model.SearchInput) ([]*model.SearchResult, error) {
-	fmt.Println("Received Search query with input", input)
+	klog.Infof("Received Search query with input %+v\n", input)
+	for idx, in := range input {
+
+		klog.Infof("Input %d: with limit: %d", idx, *in.Limit)
+		for i, comps := range in.Keywords {
+			klog.Infof("Keywords%d: %s", i, *comps)
+		}
+		for i, filter := range in.Filters {
+			klog.Infof("Filters%d: %+v", i, *filter)
+			for _, val := range filter.Values {
+				klog.Infof("Filter value: %s", *val)
+			}
+		}
+		for i, kind := range in.RelatedKinds {
+			klog.Infof("RelatedKinds%d: %s", i, *kind)
+		}
+	}
+	limit := 0
+	klog.Infof("Search Query", r.QueryBuilder(ctx, "", input, &limit))
 	items := make([]map[string]interface{}, 2)
 	val1 := make(map[string]interface{})
 	val1["name"] = "search-ui"
@@ -76,7 +144,7 @@ func (r *queryResolver) Search(ctx context.Context, input []*model.SearchInput) 
 }
 
 func (r *queryResolver) Messages(ctx context.Context) ([]*model.Message, error) {
-	fmt.Println("Received Messages query")
+	klog.Infoln("Received Messages query")
 
 	messages := make([]*model.Message, 0)
 	kind := "Informational"
@@ -88,7 +156,7 @@ func (r *queryResolver) Messages(ctx context.Context) ([]*model.Message, error) 
 }
 
 func (r *queryResolver) SearchSchema(ctx context.Context) (map[string]interface{}, error) {
-	fmt.Println("Received SearchSchema query")
+	klog.Infoln("Received SearchSchema query")
 
 	srchSchema := make(map[string]interface{})
 	schema := [5]string{"kind", "name", "namespace", "cpu", "created"}
@@ -97,7 +165,7 @@ func (r *queryResolver) SearchSchema(ctx context.Context) (map[string]interface{
 }
 
 func (r *queryResolver) SavedSearches(ctx context.Context) ([]*model.UserSearch, error) {
-	fmt.Println("Received SavedSearches query")
+	klog.Infoln("Received SavedSearches query")
 
 	savedSrches := make([]*model.UserSearch, 0)
 	id := "1"
@@ -111,6 +179,26 @@ func (r *queryResolver) SavedSearches(ctx context.Context) ([]*model.UserSearch,
 }
 
 func (r *queryResolver) SearchComplete(ctx context.Context, property string, query *model.SearchInput, limit *int) ([]*string, error) {
+	klog.Infof("Received SearchComplete query with input property **%s** and limit %d", property, limit)
+	input := make([]*model.SearchInput, 0)
+	input = append(input, query)
+	klog.Infof("SearchComplete Query", r.QueryBuilder(ctx, property, input, limit))
+	in := query
+	klog.Infof("SearchComplete Input with limit: %d", *in.Limit)
+	for i, comps := range in.Keywords {
+		klog.Infof("SearchComplete Keywords%d: %s", i, *comps)
+	}
+	for i, filter := range in.Filters {
+		klog.Infof("SearchComplete Filters%d: %s", i, *filter)
+		for _, val := range filter.Values {
+			klog.Infof("Filter value: %s", *val)
+
+		}
+	}
+	for i, kinds := range in.RelatedKinds {
+		klog.Infof("SearchComplete RelatedKinds%d: %s", i, *kinds)
+	}
+
 	podKind := "pod"
 	return []*string{&podKind}, nil
 }

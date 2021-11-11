@@ -5,7 +5,7 @@ FROM registry.ci.openshift.org/open-cluster-management/builder:go1.16-linux AS b
 
 WORKDIR /go/src/github.com/SherinV/search-api
 COPY . .
-RUN CGO_ENABLED=0 GOGC=25 go build -trimpath -o main server.go
+RUN CGO_ENABLED=0 GOGC=25 go build -trimpath -o main main.go
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4
 
