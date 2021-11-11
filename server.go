@@ -45,6 +45,6 @@ func main() {
 	// log.Fatal(http.ListenAndServeTLS(":" + string(port)))
 
 	log.Printf(`Search API is now running on https://localhost:%d%s/graphql`, port, config.Cfg.ContextPath)
-	log.Fatal(http.ListenAndServeTLS(":"+fmt.Sprint(port), "/opt/app-root/search-api/sslcert/searchapi.crt", "/opt/app-root/search-api/sslcert/searchapi.key",
-		srv.Handler))
+	log.Fatal(http.ListenAndServeTLS(":"+fmt.Sprint(port), "./opt/app-root/search-api/sslcert/searchapi.crt", "./opt/app-root/search-api/sslcert/searchapi.key",
+		nil))
 }
