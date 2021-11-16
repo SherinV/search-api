@@ -47,5 +47,5 @@ func StartAndListen() {
 
 	klog.Infof(`Search API is now running on https://localhost:%d%s/graphql`, port, config.Cfg.ContextPath)
 	klog.Fatal(http.ListenAndServeTLS(":"+fmt.Sprint(port), "./opt/app-root/search-api/sslcert/searchapi.crt", "./opt/app-root/search-api/sslcert/searchapi.key",
-		nil))
+		srv.Handler))
 }
