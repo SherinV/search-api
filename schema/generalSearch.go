@@ -9,6 +9,7 @@ import (
 
 	db "github.com/SherinV/search-api/database"
 	"github.com/SherinV/search-api/graph/model"
+	"github.com/jackc/pgx/v4"
 )
 
 var trimAND string = " AND "
@@ -120,4 +121,32 @@ func searchResults(query string) (*model.SearchResult, error) {
 	// srchResult := make([]*model.SearchResult, 0)
 	// srchResult = append(srchResult, &srchresult1)
 	return &srchresult1, nil
+}
+
+func getRelations(uid []string) pgx.Rows {
+	pool := db.GetConnection()
+	relations, _ := pool.Query(context.Background(),
+		// relations, err  := pool.Query(context.Background(),
+		`with recursive 
+	search_graph(uid, sourcekind, destkind, sourceid, destid, path, level)
+	as (
+	SELECT r.uid, e.sourcekind, e.destkind, e.sourceid, e.destid, ARRAY[r.uid] as path, 1 as level
+		from resources r
+		INNER JOIN
+			edges e ON (r.uid = e.sourceid) 
+		 where r.uid in ("%s")
+	union
+	select r.uid, e.sourcekind, e.destkind, e.sourceid, e.destid, path||r.uid, level+1 as level 
+		from resources r
+		INNER JOIN
+			edges e ON (r.uid = e.sourceid)
+		, search_graph sg
+		where (e.sourceid = sg.destid or e.destid = sg.sourceid)
+		and r.uid <> all(sg.path)
+		and level < 2
+		) 
+
+	select * from search_graph where level= 1 or destid = "cluster0/cf303ed3-30eb-4021-a784-1bfba9841627"`, uid)
+
+	return relations
 }
