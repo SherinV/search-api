@@ -7,11 +7,10 @@ import (
 	"context"
 	"fmt"
 
-	klog "k8s.io/klog/v2"
-
 	"github.com/SherinV/search-api/graph/generated"
 	"github.com/SherinV/search-api/graph/model"
-	"github.com/SherinV/search-api/schema"
+	"github.com/SherinV/search-api/pkg/schema"
+	klog "k8s.io/klog/v2"
 )
 
 func (r *mutationResolver) DeleteSearch(ctx context.Context, resource *string) (*string, error) {
@@ -22,7 +21,6 @@ func (r *mutationResolver) SaveSearch(ctx context.Context, resource *string) (*s
 	panic(fmt.Errorf("not implemented"))
 }
 
-//TODO: Have separate functions for each sub-api
 func (r *queryResolver) Search(ctx context.Context, input []*model.SearchInput) ([]*model.SearchResult, error) {
 	// var count int
 	klog.Infof("--------- Received Search query with %d inputs ---------\n", len(input))
@@ -42,11 +40,7 @@ func (r *queryResolver) Messages(ctx context.Context) ([]*model.Message, error) 
 
 func (r *queryResolver) SearchSchema(ctx context.Context) (map[string]interface{}, error) {
 	klog.Infoln("Received SearchSchema query")
-
-	srchSchema := make(map[string]interface{})
-	schema := [5]string{"kind", "name", "namespace", "cpu", "created"}
-	srchSchema["allProperties"] = schema
-	return srchSchema, nil
+	return schema.SearchSchema(ctx)
 }
 
 func (r *queryResolver) SavedSearches(ctx context.Context) ([]*model.UserSearch, error) {
@@ -63,18 +57,16 @@ func (r *queryResolver) SavedSearches(ctx context.Context) ([]*model.UserSearch,
 	return nil, nil
 }
 
-func (r *queryResolver) SearchComplete(ctx context.Context, property string, srchInput *model.SearchInput, limit *int) ([]*string, error) {
+func (r *queryResolver) SearchComplete(ctx context.Context, property string, query *model.SearchInput, limit *int) ([]*string, error) {
 	klog.Infof("Received SearchComplete query with input property **%s** and limit %d", property, limit)
-	return schema.SearchComplete(ctx, property, srchInput, limit)
+	return schema.SearchComplete(ctx, property, query, limit)
 }
 
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver {
-	return &queryResolver{r}
-}
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

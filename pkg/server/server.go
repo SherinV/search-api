@@ -9,9 +9,9 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/SherinV/search-api/config"
 	"github.com/SherinV/search-api/graph"
 	"github.com/SherinV/search-api/graph/generated"
+	"github.com/SherinV/search-api/pkg/config"
 )
 
 // const defaultPort = "8080"

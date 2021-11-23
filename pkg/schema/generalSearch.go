@@ -7,8 +7,8 @@ import (
 
 	klog "k8s.io/klog/v2"
 
-	db "github.com/SherinV/search-api/database"
 	"github.com/SherinV/search-api/graph/model"
+	db "github.com/SherinV/search-api/pkg/database"
 )
 
 var trimAND string = " AND "
@@ -40,8 +40,11 @@ func searchQuery(ctx context.Context, property string, input *model.SearchInput,
 	for i, filter := range input.Filters {
 		klog.Infof("Filters%d: %+v", i, *filter)
 		// TODO: To be removed when indexer handles this as adding lower hurts index scans
-
-		whereClause = whereClause + "lower(data->> '" + filter.Property + "')"
+		if filter.Property == "cluster" {
+			whereClause = whereClause + filter.Property
+		} else {
+			whereClause = whereClause + "lower(data->> '" + filter.Property + "')"
+		}
 		var values string
 		for _, val := range filter.Values {
 			klog.Infof("Filter value: %s", *val)

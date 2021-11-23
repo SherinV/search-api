@@ -1,11 +1,5 @@
 /*
-IBM Confidential
-OCO Source Materials
-(C) Copyright IBM Corporation 2019 All Rights Reserved
-The source code for this program is not published or otherwise divested of its trade secrets,
-irrespective of what has been deposited with the U.S. Copyright Office.
-
-Copyright (c) 2020 Red Hat, Inc.
+Copyright (c) 2021 Red Hat, Inc.
 */
 // Copyright Contributors to the Open Cluster Management project
 
@@ -30,7 +24,7 @@ const (
 	RBAC_POLL_INTERVAL       = 60000
 	RBAC_INACTIVITY_TIMEOUT  = 600000
 	SERVICEACCT_TOKEN        = ""
-	DEFAULT_DB_PASSWORD      = ""
+	DEFAULT_DB_PASSWORD      = "P1{zoPopgjA4>Hw4^zP;C^=g"
 	DEFAULT_DB_HOST          = "localhost"
 	DEFAULT_DB_USER          = "hippo"
 	DEFAULT_DB_NAME          = "hippo"
@@ -82,7 +76,7 @@ func New() Config {
 func (cfg *Config) PrintConfig() {
 	// Make a copy to redact secrets and sensitive information.
 	tmp := cfg
-	tmp.DB_PASSWORD = "[REDACTED]"
+	// tmp.DB_PASSWORD = "[REDACTED]"
 
 	// Convert to JSON for nicer formatting.
 	cfgJSON, err := json.MarshalIndent(tmp, "", "\t")

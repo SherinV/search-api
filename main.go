@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 
-	"github.com/SherinV/search-api/config"
-	"github.com/SherinV/search-api/database"
-	"github.com/SherinV/search-api/server"
+	"github.com/SherinV/search-api/pkg/config"
+	"github.com/SherinV/search-api/pkg/database"
+	"github.com/SherinV/search-api/pkg/server"
 
 	klog "k8s.io/klog/v2"
 )

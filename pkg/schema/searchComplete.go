@@ -4,8 +4,8 @@ import (
 	"context"
 	"strconv"
 
-	db "github.com/SherinV/search-api/database"
 	"github.com/SherinV/search-api/graph/model"
+	db "github.com/SherinV/search-api/pkg/database"
 	klog "k8s.io/klog/v2"
 )
 
@@ -20,9 +20,11 @@ func searchCompleteQuery(ctx context.Context, property string, input *model.Sear
 	if property != "" {
 		klog.Infof("property: %s and limit:%d", property, limit)
 		if property == "cluster" {
-			selectClause = "SELECT DISTINCT " + property + " FROM resources "
+			//Adding WHERE clause to filter out NULL values and ORDER by sort results
+			selectClause = "SELECT DISTINCT " + property + " FROM resources WHERE " + property + " IS NOT NULL ORDER BY " + property
 		} else {
-			selectClause = "SELECT DISTINCT data->>'" + property + "' FROM resources "
+			//Adding WHERE clause to filter out NULL values and ORDER by sort results
+			selectClause = "SELECT DISTINCT data->>'" + property + "' FROM resources WHERE data->>'" + property + "' IS NOT NULL ORDER BY data->>'" + property + "'"
 		}
 		if limit != nil {
 			limitStr = strconv.Itoa(*limit)
@@ -54,7 +56,7 @@ func searchCompleteResults(query string) ([]*string, error) {
 		_ = rows.Scan(&prop)
 		tmpProp := prop
 		srchCompleteOut = append(srchCompleteOut, &tmpProp)
-		klog.Info("Property: ", prop, tmpProp)
+		// klog.Info("Property: ", prop, tmpProp)
 	}
 	return srchCompleteOut, nil
 }
