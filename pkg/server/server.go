@@ -16,10 +16,10 @@ import (
 
 // const defaultPort = "8080"
 
-func StartAndListen() {
+func StartAndListen(playmode bool) {
 	port := config.Cfg.HttpPort
 
-	// router := mux.NewRouter()
+	// router := mux.NewRouter()ß
 
 	// Configure TLS
 	cfg := &tls.Config{
@@ -36,16 +36,15 @@ func StartAndListen() {
 		TLSConfig:    cfg,
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
 	}
-	// srv1 := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
-	// srv1.AddTransport()
+
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv.Handler)
-
-	klog.Infof("connect to https://localhost:%d%s/graphql for GraphQL playground", port, config.Cfg.ContextPath)
-	// log.Fatal(http.ListenAndServe(":"+port, nil))
-	// log.Fatal(http.ListenAndServeTLS(":" + string(port)))
-
+	if playmode {
+		klog.Infof("connect to https://localhost:%d%s/graphql for GraphQL playground", port, config.Cfg.ContextPath)
+		klog.Fatal(http.ListenAndServeTLS(":"+fmt.Sprint(port), "./sslcert/tls.crt", "./sslcert/tls.key",
+			nil))
+	}
 	klog.Infof(`Search API is now running on https://localhost:%d%s/graphql`, port, config.Cfg.ContextPath)
-	klog.Fatal(http.ListenAndServeTLS(":"+fmt.Sprint(port), "./opt/app-root/search-api/sslcert/searchapi.crt", "./opt/app-root/search-api/sslcert/searchapi.key",
+	klog.Fatal(http.ListenAndServeTLS(":"+fmt.Sprint(port), "./sslcert/tls.crt", "./sslcert/tls.key",
 		srv.Handler))
 }
